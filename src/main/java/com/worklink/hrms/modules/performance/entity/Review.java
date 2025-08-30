@@ -44,6 +44,8 @@ public class Review {
 
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    private LocalDateTime reviewDate = LocalDateTime.now();
+
     // Constructors
     public Review() {}
 
@@ -57,6 +59,14 @@ public class Review {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
+    public LocalDateTime getReviewDate() {
+        return reviewDate;
+    }
+
+    public void setReviewDate(LocalDateTime reviewDate) {
+        this.reviewDate = reviewDate;
+    }
+    
     public Long getEmployeeId() { return employeeId; }
     public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
 

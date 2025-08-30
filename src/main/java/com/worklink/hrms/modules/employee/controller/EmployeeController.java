@@ -40,7 +40,7 @@ public class EmployeeController {
     }
 
     @GetMapping("/employee-id/{employeeId}")
-    public ResponseEntity<ApiResponse<EmployeeDTO>> getEmployeeByEmployeeId(@PathVariable String employeeId) {
+    public ResponseEntity<ApiResponse<EmployeeDTO>> getEmployeeByEmployeeId(@PathVariable Long employeeId) {
         try {
             EmployeeDTO employee = employeeService.getEmployeeByEmployeeId(employeeId);
             return ResponseEntity.ok(new ApiResponse<>("Employee retrieved successfully", employee, true));

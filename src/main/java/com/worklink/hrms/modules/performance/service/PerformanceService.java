@@ -6,6 +6,7 @@ import com.worklink.hrms.modules.performance.entity.Review;
 import com.worklink.hrms.modules.performance.repository.GoalRepository;
 import com.worklink.hrms.modules.performance.repository.ReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -78,6 +79,7 @@ public class PerformanceService {
         review.setComments(reviewDTO.getComments());
         review.setCreatedAt(LocalDateTime.now());
         review.setUpdatedAt(LocalDateTime.now());
+        review.setReviewDate(LocalDateTime.now());
 
         Review saved = reviewRepository.save(review);
         return new PerformanceDTO(saved);

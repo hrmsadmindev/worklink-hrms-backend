@@ -28,7 +28,7 @@ public class EmployeeService {
         return new EmployeeDTO(employee);
     }
 
-    public EmployeeDTO getEmployeeByEmployeeId(String employeeId) {
+    public EmployeeDTO getEmployeeByEmployeeId(Long employeeId) {
         Employee employee = employeeRepository.findByEmployeeId(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found with employee ID: " + employeeId));
         return new EmployeeDTO(employee);
