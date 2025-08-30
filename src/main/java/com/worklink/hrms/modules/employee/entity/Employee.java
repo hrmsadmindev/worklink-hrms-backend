@@ -1,6 +1,8 @@
 package com.worklink.hrms.modules.employee.entity;
 
 import jakarta.persistence.*;
+import jdk.jfr.Name;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -24,7 +26,7 @@ public class Employee {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
+    @Column(name = "phone_number", nullable = false)
     private String phone;
 
     private String address;
@@ -35,6 +37,7 @@ public class Employee {
     @Column(nullable = false)
     private String position;
 
+    @Column(name = "hire_date")
     private LocalDate dateOfJoining;
 
     private Double salary;
@@ -105,6 +108,6 @@ public class Employee {
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
 
     public enum EmployeeStatus {
-        ACTIVE, INACTIVE, TERMINATED
+        ACTIVE, INACTIVE, TERMINATED, ON_LEAVE
     }
 }
