@@ -29,14 +29,14 @@ public class EmployeeService {
     }
 
     public EmployeeDTO getEmployeeByEmployeeId(Long employeeId) {
-        Employee employee = employeeRepository.findByEmployeeId(employeeId)
+        Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found with employee ID: " + employeeId));
         return new EmployeeDTO(employee);
     }
 
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
         // Check if employee ID already exists
-        if (employeeRepository.findByEmployeeId(employeeDTO.getEmployeeId()).isPresent()) {
+        if (employeeRepository.findById(employeeDTO.getEmployeeId()).isPresent()) {
             throw new RuntimeException("Employee ID already exists: " + employeeDTO.getEmployeeId());
         }
 
@@ -62,7 +62,7 @@ public class EmployeeService {
         existing.setLastName(employeeDTO.getLastName());
         existing.setPhone(employeeDTO.getPhone());
         existing.setAddress(employeeDTO.getAddress());
-        existing.setDepartment(employeeDTO.getDepartment());
+        existing.setDepartmentId(employeeDTO.getDepartment());
         existing.setPosition(employeeDTO.getPosition());
         existing.setDateOfJoining(employeeDTO.getDateOfJoining());
         existing.setSalary(employeeDTO.getSalary());
@@ -80,8 +80,8 @@ public class EmployeeService {
         employeeRepository.deleteById(id);
     }
 
-    public List<EmployeeDTO> getEmployeesByDepartment(String department) {
-        return employeeRepository.findByDepartment(department).stream()
+    public List<EmployeeDTO> getEmployeesByDepartment(Long departmentId) {
+        return employeeRepository.findByDepartmentId(departmentId).stream()
                 .map(EmployeeDTO::new)
                 .collect(Collectors.toList());
     }
@@ -94,13 +94,13 @@ public class EmployeeService {
 
     private Employee convertToEntity(EmployeeDTO dto) {
         Employee employee = new Employee();
-        employee.setEmployeeId(dto.getEmployeeId());
+        employee.setId(dto.getEmployeeId());
         employee.setFirstName(dto.getFirstName());
         employee.setLastName(dto.getLastName());
         employee.setEmail(dto.getEmail());
         employee.setPhone(dto.getPhone());
         employee.setAddress(dto.getAddress());
-        employee.setDepartment(dto.getDepartment());
+        employee.setDepartmentId(dto.getDepartment());
         employee.setPosition(dto.getPosition());
         employee.setDateOfJoining(dto.getDateOfJoining());
         employee.setSalary(dto.getSalary());

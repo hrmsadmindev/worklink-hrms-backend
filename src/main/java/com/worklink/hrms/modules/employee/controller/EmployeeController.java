@@ -39,17 +39,6 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping("/employee-id/{employeeId}")
-    public ResponseEntity<ApiResponse<EmployeeDTO>> getEmployeeByEmployeeId(@PathVariable Long employeeId) {
-        try {
-            EmployeeDTO employee = employeeService.getEmployeeByEmployeeId(employeeId);
-            return ResponseEntity.ok(new ApiResponse<>("Employee retrieved successfully", employee, true));
-        } catch (Exception e) {
-            return ResponseEntity.badRequest()
-                .body(new ApiResponse<>("Failed to retrieve employee: " + e.getMessage(), null, false));
-        }
-    }
-
     @PostMapping
     public ResponseEntity<ApiResponse<EmployeeDTO>> createEmployee(@Valid @RequestBody EmployeeDTO employeeDTO) {
         try {
@@ -84,11 +73,11 @@ public class EmployeeController {
         }
     }
 
-    @GetMapping("/department/{department}")
-    public ResponseEntity<ApiResponse<List<EmployeeDTO>>> getEmployeesByDepartment(@PathVariable String department) {
+    @GetMapping("/department/{departmentId}")
+    public ResponseEntity<ApiResponse<List<EmployeeDTO>>> getEmployeesByDepartment(@PathVariable Long departmentId) {
         try {
-            List<EmployeeDTO> employees = employeeService.getEmployeesByDepartment(department);
-            return ResponseEntity.ok(new ApiResponse<>("Employees retrieved successfully", employees, true));
+            List<EmployeeDTO> employees = employeeService.getEmployeesByDepartment(departmentId);
+            return ResponseEntity.ok(new ApiResponse<>("Employees retrieved successfully for Department", employees, true));
         } catch (Exception e) {
             return ResponseEntity.badRequest()
                 .body(new ApiResponse<>("Failed to retrieve employees: " + e.getMessage(), null, false));

@@ -27,8 +27,7 @@ public class EmployeeDTO {
 
     private String address;
 
-    @NotBlank
-    private String department;
+    private Long department;
 
     @NotBlank
     private String position;
@@ -47,13 +46,13 @@ public class EmployeeDTO {
     public EmployeeDTO() {}
 
     public EmployeeDTO(Employee employee) {
-        this.employeeId = employee.getEmployeeId();
+        this.employeeId = employee.getId();
         this.firstName = employee.getFirstName();
         this.lastName = employee.getLastName();
         this.email = employee.getEmail();
         this.phone = employee.getPhone();
         this.address = employee.getAddress();
-        this.department = employee.getDepartment();
+        this.department = employee.getDepartmentId();
         this.position = employee.getPosition();
         this.dateOfJoining = employee.getDateOfJoining();
         this.salary = employee.getSalary();
@@ -81,8 +80,8 @@ public class EmployeeDTO {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    public String getDepartment() { return department; }
-    public void setDepartment(String department) { this.department = department; }
+    public Long getDepartment() { return department; }
+    public void setDepartment(Long department) { this.department = department; }
 
     public String getPosition() { return position; }
     public void setPosition(String position) { this.position = position; }

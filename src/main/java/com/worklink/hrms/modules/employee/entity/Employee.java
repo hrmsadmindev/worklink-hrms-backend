@@ -1,8 +1,7 @@
 package com.worklink.hrms.modules.employee.entity;
 
+import com.worklink.hrms.common.entity.Department;
 import jakarta.persistence.*;
-import jdk.jfr.Name;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -12,8 +11,8 @@ public class Employee {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(unique = true, nullable = false)
-    private Long employeeId;
+    @Column(name = "employee_id", unique = true, nullable = false)
+    private Long id;
 
     @Column(nullable = false)
     private String firstName;
@@ -29,8 +28,8 @@ public class Employee {
 
     private String address;
 
-    @Column(nullable = false)
-    private String department;
+    @Column(name = "department_id", insertable=false, updatable=false)
+    private Long departmentId;
 
     @Column(nullable = false)
     private String position;
@@ -39,6 +38,26 @@ public class Employee {
     private LocalDate dateOfJoining;
 
     private Double salary;
+
+    // Self-referencing relationships for manager and HR
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id")
+    private Employee manager;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "hr_id")
+    private Employee hr;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "department_id")
+    private Department department;
+
+    // Optional: Store IDs directly if needed for queries
+    @Column(name = "manager_id", insertable = false, updatable = false)
+    private Long managerId;
+
+    @Column(name = "hr_id", insertable = false, updatable = false)
+    private Long hrId;
 
     @Enumerated(EnumType.STRING)
     private EmployeeStatus status = EmployeeStatus.ACTIVE;
@@ -51,20 +70,67 @@ public class Employee {
     // Constructors
     public Employee() {}
 
-    public Employee(Long employeeId, String firstName, String lastName, String email,
-                   String phone, String department, String position) {
-        this.employeeId = employeeId;
+    public Employee(Long id, String firstName, String lastName, String email,
+                    String phone, Long departmentId, String position) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.phone = phone;
-        this.department = department;
+        this.departmentId = departmentId;
         this.position = position;
     }
 
-    // Getters and Setters
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    // Updated getManager() method - returns manager's full name
+    public String getManagerName() {
+        if (manager != null) {
+            return manager.getFirstName() + " " + manager.getLastName();
+        }
+        return null;
+    }
+
+    // Updated getHr() method - returns HR's full name
+    public String getHrName() {
+        if (hr != null) {
+            return hr.getFirstName() + " " + hr.getLastName();
+        }
+        return null;
+    }
+
+    public Employee getManager() {
+        return manager;
+    }
+
+    public void setManager(Employee manager) {
+        this.manager = manager;
+    }
+
+    public Employee getHr() {
+        return hr;
+    }
+
+    public void setHr(Employee hr) {
+        this.hr = hr;
+    }
+
+    public Long getManagerId() {
+        return managerId;
+    }
+
+    public Long getHrId() {
+        return hrId;
+    }
+
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
+
+    public Department getDepartment() {
+        return department;
+    }
+
+    public void setDepartment(Department department) {
+        this.department = department;
+    }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -81,8 +147,8 @@ public class Employee {
     public String getAddress() { return address; }
     public void setAddress(String address) { this.address = address; }
 
-    public String getDepartment() { return department; }
-    public void setDepartment(String department) { this.department = department; }
+    public Long getDepartmentId() { return departmentId; }
+    public void setDepartmentId(Long department_id) { this.departmentId = department_id; }
 
     public String getPosition() { return position; }
     public void setPosition(String position) { this.position = position; }
@@ -101,6 +167,10 @@ public class Employee {
 
     public LocalDateTime getUpdatedAt() { return updatedAt; }
     public void setUpdatedAt(LocalDateTime updatedAt) { this.updatedAt = updatedAt; }
+
+    public String getFullName(){
+        return getFirstName() + " " + getLastName();
+    }
 
     public enum EmployeeStatus {
         ACTIVE, INACTIVE, TERMINATED, ON_LEAVE
