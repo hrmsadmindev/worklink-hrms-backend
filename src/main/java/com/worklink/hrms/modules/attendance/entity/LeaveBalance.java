@@ -35,9 +35,6 @@ public class LeaveBalance {
     @Column(name = "balance")
     private Integer balance = 0;
 
-    @Column(name = "carryover_days")
-    private Integer carryoverDays = 0;
-
     @Column(name = "year", nullable = false)
     private Integer year;
 
@@ -48,7 +45,7 @@ public class LeaveBalance {
     private LocalDateTime updatedAt = LocalDateTime.now();
 
     public Integer getRemainingDays() {
-        return (allocatedDays + carryoverDays) - usedDays - balance;
+        return (allocatedDays) - usedDays - balance;
     }
 
     public Boolean canApplyLeave(Integer daysRequested) {

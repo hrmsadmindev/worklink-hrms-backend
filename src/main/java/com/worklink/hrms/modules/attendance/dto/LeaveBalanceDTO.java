@@ -17,8 +17,7 @@ public class LeaveBalanceDTO {
     private String leaveTypeName;
     private Integer allocatedDays;
     private Integer usedDays;
-    private Integer pendingDays;
-    private Integer carryoverDays;
+    private Integer balance;
     private Integer remainingDays;
     private Integer year;
 
