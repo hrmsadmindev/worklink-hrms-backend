@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 public class EmployeeDTO {
 
-    private Long employeeId;
+    private Long id;
 
     @NotBlank
     private String firstName;
@@ -46,7 +46,7 @@ public class EmployeeDTO {
     public EmployeeDTO() {}
 
     public EmployeeDTO(Employee employee) {
-        this.employeeId = employee.getId();
+        this.id = employee.getId();
         this.firstName = employee.getFirstName();
         this.lastName = employee.getLastName();
         this.email = employee.getEmail();
@@ -62,8 +62,8 @@ public class EmployeeDTO {
     }
 
     // Getters and Setters
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public Long getId() { return id; }
+    public void setId(Long id) { this.id = id; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }

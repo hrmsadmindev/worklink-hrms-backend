@@ -17,17 +17,13 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
-    private String firstName;
-
-    @Column(nullable = false)
-    private String lastName;
-
     @Enumerated(EnumType.STRING)
     private UserRole role = UserRole.EMPLOYEE;
 
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.ACTIVE;
+
+    private Long employeeId;
 
     @Column(updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -37,11 +33,9 @@ public class User {
     // Constructors
     public User() {}
 
-    public User(String email, String password, String firstName, String lastName, UserRole role) {
+    public User(String email, String password, UserRole role) {
         this.email = email;
         this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
         this.role = role;
     }
 
@@ -55,17 +49,19 @@ public class User {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-
     public UserRole getRole() { return role; }
     public void setRole(UserRole role) { this.role = role; }
 
     public UserStatus getStatus() { return status; }
     public void setStatus(UserStatus status) { this.status = status; }
+
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
+    }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

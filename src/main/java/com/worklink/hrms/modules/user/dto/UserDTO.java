@@ -18,12 +18,7 @@ public class UserDTO {
     @Size(min = 6, message = "Password must be at least 6 characters long")
     private String password;
 
-    @NotBlank
-    private String firstName;
-
-    @NotBlank
-    private String lastName;
-
+    private Long employeeId;
     private User.UserRole role;
 
     private User.UserStatus status;
@@ -38,9 +33,8 @@ public class UserDTO {
     public UserDTO(User user) {
         this.id = user.getId();
         this.email = user.getEmail();
-        // Don't include password in DTO for security
-        this.firstName = user.getFirstName();
-        this.lastName = user.getLastName();
+        // Don't include password in DTO for security=
+        this.employeeId = user.getEmployeeId();
         this.role = user.getRole();
         this.status = user.getStatus();
         this.createdAt = user.getCreatedAt();
@@ -57,17 +51,19 @@ public class UserDTO {
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }
 
-    public String getFirstName() { return firstName; }
-    public void setFirstName(String firstName) { this.firstName = firstName; }
-
-    public String getLastName() { return lastName; }
-    public void setLastName(String lastName) { this.lastName = lastName; }
-
     public User.UserRole getRole() { return role; }
     public void setRole(User.UserRole role) { this.role = role; }
 
     public User.UserStatus getStatus() { return status; }
     public void setStatus(User.UserStatus status) { this.status = status; }
+
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
+    }
 
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }

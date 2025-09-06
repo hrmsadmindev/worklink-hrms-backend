@@ -55,8 +55,6 @@ public class UserService implements UserDetailsService {
         User user = new User();
         user.setEmail(userDTO.getEmail());
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
         user.setRole(userDTO.getRole() != null ? userDTO.getRole() : User.UserRole.EMPLOYEE);
         user.setStatus(userDTO.getStatus() != null ? userDTO.getStatus() : User.UserStatus.ACTIVE);
         user.setCreatedAt(LocalDateTime.now());
@@ -70,8 +68,6 @@ public class UserService implements UserDetailsService {
         User existing = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + id));
 
-        existing.setFirstName(userDTO.getFirstName());
-        existing.setLastName(userDTO.getLastName());
         existing.setRole(userDTO.getRole());
         existing.setStatus(userDTO.getStatus());
         existing.setUpdatedAt(LocalDateTime.now());
