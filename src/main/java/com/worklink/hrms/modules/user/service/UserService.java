@@ -57,6 +57,7 @@ public class UserService implements UserDetailsService {
         user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setRole(userDTO.getRole() != null ? userDTO.getRole() : User.UserRole.EMPLOYEE);
         user.setStatus(userDTO.getStatus() != null ? userDTO.getStatus() : User.UserStatus.ACTIVE);
+        user.setEmployeeId(userDTO.getEmployeeId());
         user.setCreatedAt(LocalDateTime.now());
         user.setUpdatedAt(LocalDateTime.now());
 
@@ -85,5 +86,9 @@ public class UserService implements UserDetailsService {
             throw new RuntimeException("User not found with id: " + id);
         }
         userRepository.deleteById(id);
+    }
+
+    public void deactivateStatusByEmployeeId(Long employeeId){
+        userRepository.updateStatusByEmployeeId(employeeId, User.UserStatus.INACTIVE);
     }
 }

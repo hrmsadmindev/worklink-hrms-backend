@@ -28,7 +28,7 @@ public class Employee {
 
     private String address;
 
-    @Column(name = "department_id", insertable=false, updatable=false)
+    @Column(name = "department_id")
     private Long departmentId;
 
     @Column(nullable = false)
@@ -41,22 +41,21 @@ public class Employee {
 
     // Self-referencing relationships for manager and HR
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "manager_id")
+    @JoinColumn(name = "manager_id", insertable = false, updatable = false)
     private Employee manager;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "hr_id")
+    @JoinColumn(name = "hr_id", insertable = false, updatable = false)
     private Employee hr;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "department_id")
+    @JoinColumn(name = "department_id", insertable=false, updatable=false)
     private Department department;
 
-    // Optional: Store IDs directly if needed for queries
-    @Column(name = "manager_id", insertable = false, updatable = false)
+    @Column(name = "manager_id")
     private Long managerId;
 
-    @Column(name = "hr_id", insertable = false, updatable = false)
+    @Column(name = "hr_id")
     private Long hrId;
 
     @Enumerated(EnumType.STRING)

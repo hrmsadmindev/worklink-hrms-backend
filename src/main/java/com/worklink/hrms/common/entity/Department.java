@@ -41,9 +41,6 @@ public class Department {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @OneToMany(mappedBy = "departmentId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<Employee> employees;
-
     @PreUpdate
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();

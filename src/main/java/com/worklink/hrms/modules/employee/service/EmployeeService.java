@@ -3,11 +3,13 @@ package com.worklink.hrms.modules.employee.service;
 import com.worklink.hrms.modules.employee.dto.EmployeeDTO;
 import com.worklink.hrms.modules.employee.entity.Employee;
 import com.worklink.hrms.modules.employee.repository.EmployeeRepository;
+import com.worklink.hrms.common.repository.DepartmentRepository;
 import com.worklink.hrms.modules.user.dto.UserDTO;
 import com.worklink.hrms.modules.user.entity.User;
 import com.worklink.hrms.modules.user.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -22,25 +24,49 @@ public class EmployeeService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private DepartmentRepository departmentRepository;
+
     public List<EmployeeDTO> getAllEmployees() {
-        return employeeRepository.findAll().stream()
-                .map(EmployeeDTO::new)
+        return employeeRepository.findAllActive().stream()
+                .map(emp -> new EmployeeDTO(
+                        emp.getId(),
+                        emp.getFirstName(),
+                        emp.getLastName(),
+                        emp.getEmail(),
+                        emp.getPhone(),
+                        emp.getAddress(),
+                        emp.getDepartmentId(),
+                        emp.getDepartment() != null ? emp.getDepartment().getName() : null,
+                        emp.getPosition(),
+                        emp.getDateOfJoining(),
+                        emp.getSalary(),
+                        emp.getStatus(),
+                        emp.getCreatedAt(),
+                        emp.getUpdatedAt()
+                ))
                 .collect(Collectors.toList());
     }
 
     public EmployeeDTO getEmployeeById(Long id) {
-        Employee employee = employeeRepository.findById(id)
+        Employee employee = employeeRepository.findActiveById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
         return new EmployeeDTO(employee);
     }
 
     public EmployeeDTO getEmployeeByEmployeeId(Long employeeId) {
-        Employee employee = employeeRepository.findById(employeeId)
+        Employee employee = employeeRepository.findActiveById(employeeId)
                 .orElseThrow(() -> new RuntimeException("Employee not found with employee ID: " + employeeId));
         return new EmployeeDTO(employee);
     }
 
     public EmployeeDTO createEmployee(EmployeeDTO employeeDTO) {
+        // Validate department exists
+        if (employeeDTO.getDepartmentId() != null) {
+            if (!departmentRepository.existsById(employeeDTO.getDepartmentId())) {
+                throw new RuntimeException("Department not found with ID: " + employeeDTO.getDepartmentId());
+            }
+        }
         // Check if email already exists
         if (employeeRepository.findByEmail(employeeDTO.getEmail()).isPresent()) {
             throw new RuntimeException("Email already exists: " + employeeDTO.getEmail());
@@ -74,12 +100,14 @@ public class EmployeeService {
             return new EmployeeDTO(savedEmployee);
         }catch(Exception e) {
             // If user creation fails, the transaction will rollback and employee won't be created either
+            e.printStackTrace();
+            e.getStackTrace();
             throw new RuntimeException("Failed to create employee and user: " + e.getMessage(), e);
         }
     }
 
     public EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO) {
-        Employee existing = employeeRepository.findById(id)
+        Employee existing = employeeRepository.findActiveById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
 
         // Update fields
@@ -87,7 +115,7 @@ public class EmployeeService {
         existing.setLastName(employeeDTO.getLastName());
         existing.setPhone(employeeDTO.getPhone());
         existing.setAddress(employeeDTO.getAddress());
-        existing.setDepartmentId(employeeDTO.getDepartment());
+        existing.setDepartmentId(employeeDTO.getDepartmentId());
         existing.setPosition(employeeDTO.getPosition());
         existing.setDateOfJoining(employeeDTO.getDateOfJoining());
         existing.setSalary(employeeDTO.getSalary());
@@ -98,11 +126,15 @@ public class EmployeeService {
         return new EmployeeDTO(updated);
     }
 
+    @Transactional
     public void deleteEmployee(Long id) {
+        // Check if employee exists
         if (!employeeRepository.existsById(id)) {
             throw new RuntimeException("Employee not found with id: " + id);
         }
-        employeeRepository.deleteById(id);
+
+        // Just set user status to INACTIVE using employee_id
+        userService.deactivateStatusByEmployeeId(id);
     }
 
     public List<EmployeeDTO> getEmployeesByDepartment(Long departmentId) {
@@ -127,7 +159,7 @@ public class EmployeeService {
         employee.setEmail(dto.getEmail());
         employee.setPhone(dto.getPhone());
         employee.setAddress(dto.getAddress());
-        employee.setDepartmentId(dto.getDepartment());
+        employee.setDepartmentId(dto.getDepartmentId());
         employee.setPosition(dto.getPosition());
         employee.setDateOfJoining(dto.getDateOfJoining());
         employee.setSalary(dto.getSalary());
