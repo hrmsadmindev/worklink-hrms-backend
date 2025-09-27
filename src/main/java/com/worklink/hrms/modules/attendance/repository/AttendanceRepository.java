@@ -21,8 +21,10 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     Page<Attendance> findByEmployeeIdAndDateBetween(Long employeeId, LocalDate startDate,
                                                     LocalDate endDate, Pageable pageable);
 
-    Page<Attendance> findByEmployeeIdOrderByDateDesc(Long employeeId, Pageable pageable);
+    List<Attendance> findByEmployeeIdOrderByDateDesc(Long employeeId);
 
+    List<Attendance> findByEmployeeIdAndDateBetweenOrderByDateDesc(
+            Long employeeId, LocalDate startDate, LocalDate endDate);
     List<Attendance> findByDateAndEmployeeDepartmentId(LocalDate date, Long departmentId);
 
     List<Attendance> findByDate(LocalDate date);
@@ -59,4 +61,34 @@ public interface AttendanceRepository extends JpaRepository<Attendance, Long> {
     List<Attendance> findIncompleteAttendance(@Param("date") LocalDate date);
 
     boolean existsByEmployeeIdAndDate(Long employeeId, LocalDate date);
+
+    //METHODS for getAllEmployeesAttendance functionality
+    //Find attendance records between date range
+    List<Attendance> findByDateBetween(LocalDate startDate, LocalDate endDate);
+
+    //Find attendance records between date range with pagination
+    Page<Attendance> findByDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+
+    //Find attendance records between date range for specific department*/
+    @Query("SELECT a FROM Attendance a WHERE a.date BETWEEN :startDate AND :endDate " +
+            "AND a.employee.departmentId = :departmentId ORDER BY a.date DESC, a.employee.firstName")
+    List<Attendance> findByDateBetweenAndEmployeeDepartmentId(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("departmentId") Long departmentId);
+
+    //Find attendance records between date range with specific status*/
+    List<Attendance> findByDateBetweenAndStatus(LocalDate startDate, LocalDate endDate,
+                                                Attendance.AttendanceStatus status);
+
+    /**
+     Find attendance records between date range for specific department and status*/
+    @Query("SELECT a FROM Attendance a WHERE a.date BETWEEN :startDate AND :endDate " +
+            "AND a.employee.departmentId = :departmentId AND a.status = :status " +
+            "ORDER BY a.date DESC, a.employee.firstName")
+    List<Attendance> findByDateBetweenAndEmployeeDepartmentIdAndStatus(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            @Param("departmentId") Long departmentId,
+            @Param("status") Attendance.AttendanceStatus status);
 }

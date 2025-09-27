@@ -8,12 +8,15 @@ public class AuthResponse {
     private String email;
     private User.UserRole role;
 
+    private Long employeeId;
+
     public AuthResponse() {}
 
-    public AuthResponse(String accessToken, String email, User.UserRole role) {
+    public AuthResponse(String accessToken, String email, User.UserRole role, Long employeeId) {
         this.accessToken = accessToken;
         this.email = email;
         this.role = role;
+        this.employeeId = employeeId;
     }
 
     public String getAccessToken() {
@@ -38,5 +41,13 @@ public class AuthResponse {
 
     public void setRole(User.UserRole role) {
         this.role = role;
+    }
+
+    public Long getEmployeeId() {
+        return employeeId;
+    }
+
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
     }
 }

@@ -28,9 +28,9 @@ public class AttendanceService {
     private final AttendanceRepository attendanceRepository;
     private final EmployeeRepository employeeRepository;
 
-    public AttendanceDTO clockIn(BiometricDataDTO biometricData) {
+    public AttendanceDTO clockIn(AttendanceDTO attendanceData) {
         try {
-            Employee employee = validateEmployee(biometricData.getEmployeeId());
+            Employee employee = validateEmployee(attendanceData.getEmployeeId());
             LocalDate today = LocalDate.now();
 
             // Check if already clocked in today
@@ -38,31 +38,28 @@ public class AttendanceService {
                 Attendance existingAttendance = attendanceRepository
                         .findByEmployeeIdAndDate(employee.getId(), today)
                         .orElseThrow();
-
                 if (existingAttendance.getClockInTime() != null) {
                     throw new RuntimeException("Employee already clocked in today at " +
                             existingAttendance.getClockInTime());
                 }
             }
 
-            Attendance attendance = createOrUpdateAttendance(employee, today, biometricData);
+            Attendance attendance = createOrUpdateAttendance(employee, today, attendanceData);
             attendance.setClockInTime(LocalTime.now());
             attendance.setStatus(determineAttendanceStatus(attendance));
-
             attendance = attendanceRepository.save(attendance);
 
             log.info("Employee {} clocked in at {}", employee.getId(), attendance.getClockInTime());
             return convertToDto(attendance);
-
         } catch (Exception e) {
             log.error("Error during clock in", e);
             throw new RuntimeException("Clock in failed: " + e.getMessage());
         }
     }
 
-    public AttendanceDTO clockOut(BiometricDataDTO biometricData) {
+    public AttendanceDTO clockOut(AttendanceDTO attendanceData) {
         try {
-            Employee employee = validateEmployee(biometricData.getEmployeeId());
+            Employee employee = validateEmployee(attendanceData.getEmployeeId());
             LocalDate today = LocalDate.now();
 
             Attendance attendance = attendanceRepository
@@ -79,36 +76,60 @@ public class AttendanceService {
             attendance.calculateTotalHours();
             attendance.setStatus(determineAttendanceStatus(attendance));
 
+            // Set notes from AttendanceDTO if provided
+            if (attendanceData.getNotes() != null) {
+                attendance.setNotes(attendanceData.getNotes());
+            }
+
             attendance = attendanceRepository.save(attendance);
 
             log.info("Employee {} clocked out at {}", employee.getId(), attendance.getClockOutTime());
             return convertToDto(attendance);
-
         } catch (Exception e) {
             log.error("Error during clock out", e);
             throw new RuntimeException("Clock out failed: " + e.getMessage());
         }
     }
 
+    private Attendance createOrUpdateAttendance(Employee employee, LocalDate date, AttendanceDTO attendanceData) {
+        return attendanceRepository.findByEmployeeIdAndDate(employee.getId(), date)
+                .orElseGet(() -> {
+                    Attendance attendance = new Attendance();
+                    attendance.setEmployee(employee);
+                    attendance.setDate(date);
+
+                    // Set notes from AttendanceDTO if provided
+                    if (attendanceData.getNotes() != null) {
+                        attendance.setNotes(attendanceData.getNotes());
+                    }
+
+                    return attendance;
+                });
+    }
+
     @Transactional(readOnly = true)
-    public Page<AttendanceDTO> getEmployeeAttendance(Long employeeId, Pageable pageable,
+    public List<AttendanceDTO> getEmployeeAttendance(Long employeeId,
                                                      LocalDate startDate, LocalDate endDate) {
+
         if (!employeeRepository.existsById(employeeId)) {
             throw new RuntimeException("Employee not found with id: " + employeeId);
         }
 
-        Page<Attendance> attendancePage;
+        List<Attendance> attendanceList;
 
         if (startDate != null && endDate != null) {
-            attendancePage = attendanceRepository
-                    .findByEmployeeIdAndDateBetween(employeeId, startDate, endDate, pageable);
+            attendanceList = attendanceRepository
+                    .findByEmployeeIdAndDateBetweenOrderByDateDesc(employeeId, startDate, endDate);
         } else {
-            attendancePage = attendanceRepository
-                    .findByEmployeeIdOrderByDateDesc(employeeId, pageable);
+            attendanceList = attendanceRepository
+                    .findByEmployeeIdOrderByDateDesc(employeeId);
         }
 
-        return attendancePage.map(this::convertToDto);
+        return attendanceList.stream()
+                .map(this::convertToDto)
+                .collect(Collectors.toList());
     }
+
 
     @Transactional(readOnly = true)
     public List<AttendanceDTO> getDailyReport(LocalDate date, Long departmentId) {
@@ -221,5 +242,63 @@ public class AttendanceService {
                 .department(attendance.getEmployee().getDepartment() != null ?
                         attendance.getEmployee().getDepartment().getName() : null)
                 .build();
+    }
+    /**
+     * NEW METHOD: Get attendance for all employees with filtering and pagination
+     */
+    @Transactional(readOnly = true)
+    public List<AttendanceDTO> getAllEmployeesAttendance(LocalDate date, LocalDate startDate,
+                                                         LocalDate endDate, Long departmentId, String status, Pageable pageable) {
+        try {
+            List<Attendance> attendanceList;
+
+            // Determine date range
+            LocalDate searchStartDate = startDate;
+            LocalDate searchEndDate = endDate;
+
+            if (date != null) {
+                // If specific date is provided, override start and end dates
+                searchStartDate = date;
+                searchEndDate = date;
+            } else if (startDate == null && endDate == null) {
+                // If no dates specified, default to current date
+                searchStartDate = LocalDate.now();
+                searchEndDate = LocalDate.now();
+            } else if (startDate == null) {
+                // If only end date provided, start from beginning of month
+                searchStartDate = endDate.withDayOfMonth(1);
+            } else if (endDate == null) {
+                // If only start date provided, end at current date
+                searchEndDate = LocalDate.now();
+            }
+
+            // Fetch attendance records based on filters
+            if (departmentId != null && status != null) {
+                attendanceList = attendanceRepository.findByDateBetweenAndEmployeeDepartmentIdAndStatus(
+                        searchStartDate, searchEndDate, departmentId,
+                        Attendance.AttendanceStatus.valueOf(status.toUpperCase()));
+            } else if (departmentId != null) {
+                attendanceList = attendanceRepository.findByDateBetweenAndEmployeeDepartmentId(
+                        searchStartDate, searchEndDate, departmentId);
+            } else if (status != null) {
+                attendanceList = attendanceRepository.findByDateBetweenAndStatus(
+                        searchStartDate, searchEndDate,
+                        Attendance.AttendanceStatus.valueOf(status.toUpperCase()));
+            } else {
+                attendanceList = attendanceRepository.findByDateBetween(searchStartDate, searchEndDate);
+            }
+
+            // Convert to DTOs
+            List<AttendanceDTO> attendanceDTOs = attendanceList.stream()
+                    .map(this::convertToDto)
+                    .collect(Collectors.toList());
+
+            log.info("Retrieved {} attendance records for all employees", attendanceDTOs.size());
+            return attendanceDTOs;
+
+        } catch (Exception e) {
+            log.error("Error retrieving all employees attendance", e);
+            throw new RuntimeException("Failed to retrieve attendance records: " + e.getMessage());
+        }
     }
 }

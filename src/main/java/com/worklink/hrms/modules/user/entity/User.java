@@ -23,6 +23,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus status = UserStatus.ACTIVE;
 
+    @Column(name = "employee_id")
     private Long employeeId;
 
     @Column(updatable = false)
@@ -33,10 +34,11 @@ public class User {
     // Constructors
     public User() {}
 
-    public User(String email, String password, UserRole role) {
+    public User(String email, String password, UserRole role, Long employeeId) {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.employeeId = employeeId;
     }
 
     // Getters and Setters

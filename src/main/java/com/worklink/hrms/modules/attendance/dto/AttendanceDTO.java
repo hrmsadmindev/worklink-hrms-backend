@@ -21,15 +21,13 @@ public class AttendanceDTO {
     private String employeeName;
 
     @NotNull(message = "Date is required")
-    private LocalDate date;
+    private LocalDate date = LocalDate.now();
 
     private LocalTime clockInTime;
     private LocalTime clockOutTime;
     private Integer breakDuration;
     private Double totalHours;
     private String status;
-    private String location;
     private String department;
-    private String deviceId;
     private String notes;
 }
