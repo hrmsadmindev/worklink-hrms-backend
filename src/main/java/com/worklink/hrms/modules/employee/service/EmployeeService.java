@@ -106,6 +106,81 @@ public class EmployeeService {
         }
     }
 
+    public EmployeeDTO patchEmployee(Long id, EmployeeDTO employeeDTO) {
+        Employee existing = employeeRepository.findActiveById(id)
+                .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));
+
+        // Only update fields that are provided (not null)
+        if (employeeDTO.getFirstName() != null && !employeeDTO.getFirstName().trim().isEmpty()) {
+            existing.setFirstName(employeeDTO.getFirstName());
+        }
+
+        if (employeeDTO.getLastName() != null && !employeeDTO.getLastName().trim().isEmpty()) {
+            existing.setLastName(employeeDTO.getLastName());
+        }
+
+        if (employeeDTO.getEmail() != null && !employeeDTO.getEmail().trim().isEmpty()) {
+            // Check if email is being changed and if new email already exists
+            if (!existing.getEmail().equals(employeeDTO.getEmail()) &&
+                    employeeRepository.findByEmail(employeeDTO.getEmail()).isPresent()) {
+                throw new RuntimeException("Email already exists: " + employeeDTO.getEmail());
+            }
+            existing.setEmail(employeeDTO.getEmail());
+        }
+
+        if (employeeDTO.getPhone() != null) {
+            existing.setPhone(employeeDTO.getPhone());
+        }
+
+        if (employeeDTO.getAddress() != null) {
+            existing.setAddress(employeeDTO.getAddress());
+        }
+
+        if (employeeDTO.getDepartmentId() != null) {
+            // Validate department exists
+            if (!departmentRepository.existsById(employeeDTO.getDepartmentId())) {
+                throw new RuntimeException("Department not found with ID: " + employeeDTO.getDepartmentId());
+            }
+            existing.setDepartmentId(employeeDTO.getDepartmentId());
+        }
+
+//        if (employeeDTO.getPositionId() != null) {
+//            // Validate position exists (if you've implemented the Position entity)
+//            if (!positionRepository.existsById(employeeDTO.getPositionId())) {
+//                throw new RuntimeException("Position not found with ID: " + employeeDTO.getPositionId());
+//            }
+//            existing.setPositionId(employeeDTO.getPositionId());
+//        }
+
+        existing.setPosition(employeeDTO.getPosition());
+
+        if (employeeDTO.getDateOfJoining() != null) {
+            existing.setDateOfJoining(employeeDTO.getDateOfJoining());
+        }
+
+        if (employeeDTO.getSalary() != null) {
+            existing.setSalary(employeeDTO.getSalary());
+        }
+
+        if (employeeDTO.getStatus() != null) {
+            existing.setStatus(employeeDTO.getStatus());
+        }
+
+//        if (employeeDTO.getManagerId() != null) {
+//            existing.setManagerId(employeeDTO.getManagerId());
+//        }
+//
+//        if (employeeDTO.getHrId() != null) {
+//            existing.setHrId(employeeDTO.getHrId());
+//        }
+
+        existing.setUpdatedAt(LocalDateTime.now());
+
+        Employee updated = employeeRepository.save(existing);
+        return new EmployeeDTO(updated);
+    }
+
+
     public EmployeeDTO updateEmployee(Long id, EmployeeDTO employeeDTO) {
         Employee existing = employeeRepository.findActiveById(id)
                 .orElseThrow(() -> new RuntimeException("Employee not found with id: " + id));

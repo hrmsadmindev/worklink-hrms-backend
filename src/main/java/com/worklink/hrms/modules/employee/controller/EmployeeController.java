@@ -62,6 +62,18 @@ public class EmployeeController {
         }
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity<ApiResponse<EmployeeDTO>> editEmployee(@PathVariable Long id,
+                                                                   @RequestBody EmployeeDTO employeeDTO) {
+        try {
+            EmployeeDTO updated = employeeService.patchEmployee(id, employeeDTO);
+            return ResponseEntity.ok(new ApiResponse<>("Employee updated successfully", updated, true));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest()
+                    .body(new ApiResponse<>("Failed to update employee: " + e.getMessage(), null, false));
+        }
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<String>> deleteEmployee(@PathVariable Long id) {
         try {
