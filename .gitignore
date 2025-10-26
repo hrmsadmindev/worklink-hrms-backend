@@ -5,9 +5,10 @@ target/
 *.jar
 *.war
 
-# IntelliJ files
+# IntelliJ/vscode files
 *.iml
 .idea/
+.vscode/
 out/
 
 # OS
